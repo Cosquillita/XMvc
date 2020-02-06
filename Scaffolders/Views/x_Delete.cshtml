@@ -1,0 +1,17 @@
+@model $rootnamespace$.Models.$modelName$
+@using $rootnamespace$.Helpers;
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>$modelName$</legend>
+    @Html.Partial("_Details", Model)
+</fieldset>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "_deleteForm" }))
+{
+    @Html.AntiForgeryToken()
+	@HelperExtensions.HiddenForId(Model.$primaryKeyName$.ToString())
+	@HelperExtensions.HiddenForPageNumber(ViewBag.pageNum.ToString())
+    @HelperExtensions.CreateDeleteOkCancelButtons("$modelName$", Model.$primaryKeyName$.ToString(), ViewBag.pageNum.ToString())
+}
+

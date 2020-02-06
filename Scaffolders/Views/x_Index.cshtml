@@ -1,0 +1,50 @@
+@model IEnumerable<XScaffolding.Models.@Model.Name>
+    @using XScaffolding.Helpers;
+    @using XScaffolding.Models;
+
+    Current Page: @ViewBag.pageNum
+    <input type="hidden" id="filters_@Model.Name" name="filters_@Model.Name" value="@ViewBag.filters" />
+    <input type="hidden" id="sorts_@Model.Name" name="sorts_@Model.Name" value="@ViewBag.sorts" />
+    <input type="hidden" id="pageNum_@Model.Name" name="pageNum_@Model.Name" value="@ViewBag.pageNum" />
+    <table id='table_@Model.Name' class='xg'>
+        <thead>
+            <tr id="sortRow_@Model.Name" class='sortRow'>
+                <th>
+                    <a href="#" onclick="AddRecord('@Model.Name');"><span>Add New</span></a>
+                </th>
+                @foreach (var item in Model)
+                {
+                    <th><a href="#" onclick="SortColumn('@item.Name');">@item.Name</a></th>
+                }
+            </tr>
+            <tr id="filterRow_@Model.Name" class='filterRow'>
+                <th><button type="button" class="xg" id="btnClear_@Model.Name" onclick="ClearFiltersAndSorts('@Model.Name');">Clear</button></th>
+                @foreach (var item in Model)
+                {
+                    <th><input type="text" id="filter_@item.Name" value="" /></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="command">
+                        <a href="#" onclick="EditRecord('@Model.Name', '@item.$primaryKeyName$.ToString()', null);">Edit</a>
+                    </td>
+                    @foreach (var column in Model.item)
+                    {
+                        <td>@column</td>
+                    }
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan='@Model.Columns.Count()'>
+                    @LinqPager.CreatePagerParamzBootstrap(Model.Name, ViewBag.pageNum, ViewBag.pageCount, ViewBag.rowsPerPage, ViewBag.rowCount)
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+

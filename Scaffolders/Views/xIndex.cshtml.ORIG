@@ -1,0 +1,8 @@
+@model IEnumerable<$rootnamespace$.Models.$modelName$>
+
+<h2>$modelName$</h2>
+
+<div id="$modelName$_Container" class="xgTableContainer">
+	@Html.Action("_Index", "$modelName$", new { pageNum=@ViewBag.pageNum } )
+</div>
+

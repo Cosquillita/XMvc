@@ -1,0 +1,46 @@
+@model $rootnamespace$.Models.$modelName$
+@using$rootnamespace$.Helpers;
+
+<script src="~/Scripts/jquery-1.8.2.min.js"></script>
+<script src="~/Scripts/jquery-ui-1.8.24.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "_CreateOrEditForm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>$modelName$</legend>
+        @Html.HiddenFor(model => model.$primaryKeyName$)
+        <div style="width: 90%; margin: 0 auto; text-align: center;">
+            @foreach (var item in Model)
+            {
+                <div class="editorLabel">@Html.Label(item.Name)</div>
+                if (item.GetType() == typeof(string))
+                {
+                    <div class="editorField">@Html.TextBox(item.Name)@Html.ValidationMessageFor(model => model.$columnName$)</div>
+                }
+                else if (item.GetType() == typeof(select))
+                {
+                    <div class="editorField">@Html.DropDownList(item.Name, string.Empty)@Html.ValidationMessageFor(model => model.$columnName$)</div>
+                }
+                else if (item.GetType() == typeof(bool))
+                {
+                    <div class="editorField">@Html.CheckBox(item.Name, string.Empty)@Html.ValidationMessageFor(model => model.$columnName$)</div>
+                }
+                else if (item.GetType() == typeof(string))
+                {
+                    <div class="editorField">@Html.TextArea(item.Name)@Html.ValidationMessageFor(model => model.$columnName$)</div>
+                }
+                else if (item.GetType() == typeof(radiobutton))
+                {
+                    <div class="editorField">@Html.RadioButton("$columnName$", String.Empty)@Html.ValidationMessageFor(model => model.$columnName$)</div>
+                }
+            }
+        </div>
+        <br />
+        @HelperExtensions.CreateEditOkCancelButtons("$modelName$", Model.$primaryKeyName$.ToString())
+    </fieldset>
+}
+

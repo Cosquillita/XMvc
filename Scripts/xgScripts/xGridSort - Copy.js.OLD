@@ -1,0 +1,131 @@
+﻿
+/// sort javascript module
+/// the sorts are maintained in the order the user selected them... otherwise it will confuse the user
+/// also, each column's sort direction has a default of sort_unsorted.
+/// after the first user selection, the column will be sort_ascending
+/// after the second user selection, the column will be sort_descending
+/// after the third user selection, the column will return to the default of sort_unsorted
+
+/// this strings match the corresponding *.png image file names
+var sort_unsorted = "UNSORTED";
+var sort_ascending = "ASCENDING";
+var sort_descending = "DESCENDING";
+
+function sortObject(columnName, sortOrder, sortDirection) {
+    /// sort object... to make sorting the sorts easier
+    this.columnName = columnName;
+    this.sortOrder = sortOrder;
+    this.sortDirection = sortDirection;
+}
+
+function sortObjectSort(a, b) {
+    /// sorting the sort object array
+    var x = a.sortOrder;
+    var y = b.sortOrder;
+    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+}
+
+function SortTable(tableName, s) {
+    /// Since this is used ONLY for sort selections by user, all selections are applied and grid is set to the first page.
+    var sorts = GatherSorts(tableName, s);
+    var filters = GatherFilters(tableName);
+    FilterSortPage(tableName, 1, filters, sorts);
+}
+
+function GatherSorts(tableName, s) {
+    /// build url encoded array for server
+    /// example : LAST_NAME=ASC^1&FIRST_NAME&DESC^2
+    var result = "";
+    var sorties = [];
+
+    // pick up column the user clicked on
+    var newColumnName = "";
+    if (s !== undefined && s !== null && s !== "") {
+        newColumnName = s.id.substr(tableName.length + 1);
+        newColumnName = newColumnName.substring(0, newColumnName.length - ("_Sort").length);
+    }
+
+    // gather all columns
+    $("#" + tableName + "_Index > thead > tr.xgSortRow > th").each(function () {
+        var $htmlControl = $(this).find("a.spriteSort").first();
+        if ($htmlControl.length === 0) { return true; }
+
+        // get the id of the control and extract the column name from it.
+        var id = $htmlControl.attr('id');
+        var columnName = id.substr(tableName.length + 1);
+        columnName = columnName.substring(0, columnName.length - ("_Sort").length);
+
+        // assign the sort order
+        var sortOrder = $htmlControl.attr('data-sort-order');
+        if (sortOrder === "") {
+            if (columnName !== newColumnName) {
+                sortOrder = "-1";
+            } else {
+                sortOrder = "1000"; // new click on column
+            }
+        }
+
+        // assign the sort direction
+        var sortDirection = sort_unsorted;
+        if (sortOrder !== "-1") {
+            if (columnName !== newColumnName) {
+                // pickup the existing sort direction from the control
+                if ($htmlControl.hasClass(sort_ascending)) {
+                    sortDirection = sort_ascending;
+                } else if ($htmlControl.hasClass(sort_descending)) {
+                    sortDirection = sort_descending;
+                }
+            } else {
+                if (sortOrder === "1000") {
+                    sortDirection = sort_ascending; // new click on column
+                } else {
+                    // increment the existing sort direction from the control
+                    if ($htmlControl.hasClass(sort_ascending)) {
+                        sortDirection = sort_descending;
+                    } else if ($htmlControl.hasClass(sort_descending)) {
+                        sortDirection = sort_unsorted;
+                        sortOrder = "-1";
+                    } else if ($htmlControl.hasClass(sort_unsorted)) {
+                        sortDirection = sort_ascending;
+                    }
+                }
+            }
+        }
+        sorties.push(new sortObject(columnName, parseInt(sortOrder, 10), sortDirection));
+    });
+
+    // drop unsorted's
+    for (var i = sorties.length - 1; i > -1; i--) {
+        if (sorties[i].sortOrder === -1) {
+            sorties.splice(i, 1);
+        }
+    }
+
+    // sort array
+    sorties.sort(sortObjectSort);
+
+    // assign new column the correct order number
+    for (var i = 0; i < sorties.length; i++) {
+        if (sorties[i].sortOrder === 1000) {
+            if (i === 0) {
+                sorties[i].sortOrder = 1;
+            } else {
+                sorties[i].sortOrder = sorties[i-1].sortOrder + 1;
+            }
+            break;
+        }
+    }
+
+    // build url encoded array for server
+    for (var i = 0; i < sorties.length; i++) {
+        var sortOrderX = "";
+        sortOrderX = sorties[i].sortOrder.toString();
+        result = result + "&" + sorties[i].columnName + "=" + sorties[i].sortDirection + "^" + sorties[i].sortOrder.toString();
+    }
+
+    // remove leading ampersand
+    result = result.substr(1);
+
+    return result;
+}
+

@@ -1,0 +1,29 @@
+@model $rootnamespace$.Models.$modelName$
+@using$rootnamespace$.Helpers;
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<div>
+    <h4>Accident</h4>
+    <hr />
+    @Html.HiddenFor(model => model.$primaryKeyName$)
+    <dl class="dl-horizontal">
+        @foreach (var item in Model)
+        {
+            <dt>
+                @Html.DisplayNameFor(item.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(item.Name)
+            </dd>
+        }
+    </dl>
+</div>
